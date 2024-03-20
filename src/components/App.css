@@ -4,6 +4,22 @@
   margin: 0;
   background-color: #fff;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.heading {
+font-size: 4em;
+font-family: "Luckiest Guy", cursive;
+font-weight: 400;
+font-style: normal;
+color: #D4AF37; 
+letter-spacing: 4px;
+text-shadow: 
+  -2px -2px 0 #000,  
+   2px -2px 0 #000,
+  -2px  2px 0 #000,
+   2px  2px 0 #000,
+   2px 10px 25px rgba(0,0,0,0.6);
 }

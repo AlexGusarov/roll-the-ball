@@ -15,7 +15,7 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
         setBalls(generateBalls(10, width, height));
     }, [width, height]);
 
-    // Обработка событий мыши для "толкания" шаров
+
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -72,12 +72,15 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
             // Обновляем состояние шаров для следующего кадра
             setBalls(prevBalls => {
                 let updatedBalls = prevBalls.map(ball => ({ ...ball }));
-        
-                // Движение шаров и отражение от стен с потерей скорости
-              // Движение шаров и отражение от стен с потерей скорости
-updatedBalls.forEach((ball, index) => {
-    ball.x += ball.velocityX;
-    ball.y += ball.velocityY;
+
+                const friction = 0.99; // Коэффициент трения, близкий к 1 будет означать маленькое трение
+
+            updatedBalls.forEach(ball => {
+                ball.velocityX *= friction;
+                ball.velocityY *= friction;
+
+                ball.x += ball.velocityX;
+                ball.y += ball.velocityY;
 
     // Проверка столкновения с левой или правой стеной и коррекция положения
     if (ball.x - ball.radius <= 0) {
