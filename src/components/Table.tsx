@@ -11,6 +11,11 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [balls, setBalls] = useState<BallProps[]>([]);
 
+    const [dragging, setDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({x: 0, y: 0});
+    const [dragEnd, setDragEnd] = useState({x: 0, y: 0});
+
+
     useEffect(() => {
         setBalls(generateBalls(10, width, height));
     }, [width, height]);
@@ -26,6 +31,9 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
+            setDragging(true);
+            setDragStart({x, y});
+            setDragEnd({x, y}); 
             setBalls(balls => balls.map(ball => {
                 const distance = Math.sqrt((x - ball.x) ** 2 + (y - ball.y) ** 2);
                 if (distance < ball.radius) {
@@ -35,7 +43,17 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
             }));
         };
 
+        const mouseMoveHandler = (e: MouseEvent) => {
+            if (!dragging) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            setDragEnd({x, y});
+        };
+
+        
         const mouseUpHandler = (e: MouseEvent) => {
+            setDragging(false);
             setBalls(balls => balls.map(ball => {
                 if (ball.isDragging) {
                     const rect = canvas.getBoundingClientRect();
@@ -50,13 +68,17 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
         };
 
         canvas.addEventListener('mousedown', mouseDownHandler);
+        canvas.addEventListener('mousemove', mouseMoveHandler);
         canvas.addEventListener('mouseup', mouseUpHandler);
+        window.addEventListener('mouseup', mouseUpHandler); 
 
         return () => {
             canvas.removeEventListener('mousedown', mouseDownHandler);
+            canvas.removeEventListener('mousemove', mouseMoveHandler);
             canvas.removeEventListener('mouseup', mouseUpHandler);
+            window.removeEventListener('mouseup', mouseUpHandler);
         };
-    }, [setBalls]);
+    }, [dragging]);
 
     // Анимация и обработка столкновений шаров
     useEffect(() => {
@@ -68,6 +90,32 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
             ctx.clearRect(0, 0, width, height);
             ctx.fillStyle = '#113C5B';
             ctx.fillRect(0, 0, width, height);
+
+    
+            if (dragging && (dragStart.x !== dragEnd.x || dragStart.y !== dragEnd.y)) {
+                console.log('Drawing arrow', { dragStart, dragEnd });
+                // Отрисовываем линию
+                console.log('рисуем линию')
+                ctx.beginPath();
+                ctx.moveTo(dragStart.x, dragStart.y);
+                ctx.lineTo(dragEnd.x, dragEnd.y);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+        
+                // Рисуем стрелку
+                const arrowSize = 20; // Увеличиваем размер для лучшей видимости
+                const angle = Math.atan2(dragEnd.y - dragStart.y, dragEnd.x - dragStart.x);
+    
+                ctx.beginPath();
+                ctx.moveTo(dragEnd.x, dragEnd.y);
+                ctx.lineTo(dragEnd.x - arrowSize * Math.cos(angle - Math.PI / 7), dragEnd.y - arrowSize * Math.sin(angle - Math.PI / 7));
+                ctx.lineTo(dragEnd.x - arrowSize * Math.cos(angle + Math.PI / 7), dragEnd.y - arrowSize * Math.sin(angle + Math.PI / 7));
+                ctx.lineTo(dragEnd.x, dragEnd.y);
+                ctx.lineTo(dragEnd.x - arrowSize * Math.cos(angle - Math.PI / 7), dragEnd.y - arrowSize * Math.sin(angle - Math.PI / 7));
+                ctx.fillStyle = 'red'; // Используем яркий цвет для улучшения видимости
+                ctx.fill();
+            }
 
             // Обновляем состояние шаров для следующего кадра
             setBalls(prevBalls => {
@@ -145,10 +193,11 @@ for (let i = 0; i < updatedBalls.length; i++) {
             balls.forEach(ball => drawBall(ctx, ball));
         };
 
+        
         const animationFrameId = requestAnimationFrame(render);
 
         return () => cancelAnimationFrame(animationFrameId);
-    }, [balls, width, height, setBalls]);
+    }, [dragging, dragStart, dragEnd, balls, width, height]);
 
     return <canvas className="canvas" ref={canvasRef} width={width} height={height}></canvas>;
 };
