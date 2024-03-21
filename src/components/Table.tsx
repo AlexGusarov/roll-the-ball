@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BallProps, drawBall, generateBalls } from './Ball';
+import ColorSelector from './ColorSelector';
 import './Table.css';
 
 interface TableProps {
@@ -14,6 +15,13 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
     const [dragging, setDragging] = useState(false);
     const [dragStart, setDragStart] = useState({x: 0, y: 0});
     const [dragEnd, setDragEnd] = useState({x: 0, y: 0});
+    const [ballSelected, setBallSelected] = useState(false);
+
+
+    const [colorSelectorVisible, setColorSelectorVisible] = useState(false);
+    const [selectedBallId, setSelectedBallId] = useState<number | null>(null);
+    const [colorSelectorPosition, setColorSelectorPosition] = useState({ x: 0, y: 0 });
+
 
 
     useEffect(() => {
@@ -31,41 +39,75 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            setDragging(true);
-            setDragStart({x, y});
-            setDragEnd({x, y}); 
-            setBalls(balls => balls.map(ball => {
+            let ballClicked = false;
+        
+            setBalls(balls => balls.map((ball, index) => {
                 const distance = Math.sqrt((x - ball.x) ** 2 + (y - ball.y) ** 2);
                 if (distance < ball.radius) {
+                    ballClicked = true;
+                    setSelectedBallId(index);
+                    setBallSelected(true); // Шар выбран
+                    setColorSelectorPosition({ x: e.clientX, y: e.clientY });
                     return { ...ball, isDragging: true };
                 }
                 return ball;
             }));
+        
+            if (!ballClicked) {
+                setDragging(true);
+                setDragStart({x, y});
+                setDragEnd({x, y});
+            }
         };
-
+        
         const mouseMoveHandler = (e: MouseEvent) => {
             if (!dragging) return;
+            setBallSelected(false); // Пользователь переместил мышь, сбрасываем выбор шара
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             setDragEnd({x, y});
         };
+        
 
         
         const mouseUpHandler = (e: MouseEvent) => {
-            setDragging(false);
+            const rect = canvas.getBoundingClientRect();
+            const mouseUpX = e.clientX - rect.left;
+            const mouseUpY = e.clientY - rect.top;
+        
+            // Проверяем, было ли движение
+            const movementDetected = dragStart.x !== mouseUpX || dragStart.y !== mouseUpY;
+        
             setBalls(balls => balls.map(ball => {
+                // Если шар был в процессе перетаскивания
                 if (ball.isDragging) {
-                    const rect = canvas.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    const dx = x - ball.x;
-                    const dy = y - ball.y;
+                    const dx = mouseUpX - ball.x;
+                    const dy = mouseUpY - ball.y;
+                    // Остановка перетаскивания шара и применение импульса
                     return { ...ball, isDragging: false, velocityX: dx / 10, velocityY: dy / 10 };
                 }
                 return ball;
             }));
+        
+            // Если не было движения и был выбран шар, отображаем ColorSelector
+            if (!movementDetected && ballSelected) {
+                balls.forEach((ball, index) => {
+                    const distance = Math.sqrt((mouseUpX - ball.x) ** 2 + (mouseUpY - ball.y) ** 2);
+                    if (distance < ball.radius) {
+                        setSelectedBallId(index);
+                        setColorSelectorVisible(true);
+                        setColorSelectorPosition({ x: e.clientX, y: e.clientY });
+                    }
+                });
+            }
+        
+            // Сбрасываем состояния после обработки события mouseUp
+            setDragging(false);
+            setBallSelected(false);
         };
+        
+        
 
         canvas.addEventListener('mousedown', mouseDownHandler);
         canvas.addEventListener('mousemove', mouseMoveHandler);
@@ -199,7 +241,25 @@ for (let i = 0; i < updatedBalls.length; i++) {
         return () => cancelAnimationFrame(animationFrameId);
     }, [dragging, dragStart, dragEnd, balls, width, height]);
 
-    return <canvas className="canvas" ref={canvasRef} width={width} height={height}></canvas>;
+    return (
+    <>
+        <canvas className="canvas" ref={canvasRef} width={width} height={height}></canvas>
+        {colorSelectorVisible && selectedBallId !== null && (
+    <ColorSelector
+        onChange={(newColor) => {
+            setBalls(currentBalls =>
+                currentBalls.map((ball, index) =>
+                    index === selectedBallId ? { ...ball, color: newColor } : ball
+                )
+            );
+            setColorSelectorVisible(false);
+        }}
+        onClose={() => setColorSelectorVisible(false)}
+    />
+)}
+    </>
+);
+
 };
 
 export default Table;
