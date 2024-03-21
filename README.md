@@ -6,7 +6,7 @@
 
 ## Играть онлайн
 
-Расслабиться прямо прямо сейчас: [Играть в Memo](https://memorium-card.netlify.app/).
+Расслабиться прямо прямо сейчас: [Играть в Roll The Ball](https://roll-the-ball.netlify.app/).
 
 ## Технологии
 
