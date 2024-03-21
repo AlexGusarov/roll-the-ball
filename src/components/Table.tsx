@@ -19,10 +19,7 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
 
   const [colorSelectorVisible, setColorSelectorVisible] = useState(false);
   const [selectedBallId, setSelectedBallId] = useState<number | null>(null);
-  const [colorSelectorPosition, setColorSelectorPosition] = useState({
-    x: 0,
-    y: 0,
-  });
+  
 
   useEffect(() => {
     setBalls(generateBalls(10, width, height));
@@ -46,8 +43,7 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
           if (distance < ball.radius) {
             ballClicked = true;
             setSelectedBallId(index);
-            setBallSelected(true); // Шар выбран
-            setColorSelectorPosition({ x: e.clientX, y: e.clientY });
+            setBallSelected(true); 
             return { ...ball, isDragging: true };
           }
           return ball;
@@ -103,7 +99,6 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
           if (distance < ball.radius) {
             setSelectedBallId(index);
             setColorSelectorVisible(true);
-            setColorSelectorPosition({ x: e.clientX, y: e.clientY });
           }
         });
       }
@@ -123,7 +118,7 @@ const Table: React.FC<TableProps> = ({ width, height }) => {
       canvas.removeEventListener('mouseup', mouseUpHandler);
       window.removeEventListener('mouseup', mouseUpHandler);
     };
-  }, [dragging]);
+  }, [dragging, ballSelected, balls, dragStart.x, dragStart.y]);
 
   useEffect(() => {
     const render = () => {
