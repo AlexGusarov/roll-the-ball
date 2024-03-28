@@ -18,12 +18,12 @@
 1. Склонируйте репозиторий:
 
    ```
-   git clone https://github.com/AlexGusarov/Memo.git
+   git clone https://github.com/AlexGusarov/roll-the-ball.git
    ```
 2. Перейдите в директорию проекта:
 
    ```
-   cd memo
+   cd roll-the-ball
    ```
 3. Установите зависимости:
 
