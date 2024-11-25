@@ -1,40 +1,39 @@
 # Roll The Ball
 
-## Описание
+## Description
 
-Тестовая игра-антистресс. Катай шары и релаксируй. 
+Anti-stress test game. Roll the balls and relax. 
 
-## Играть онлайн
+## Play online
 
-Расслабиться прямо прямо сейчас: [Играть в Roll The Ball](https://roll-the-ball.netlify.app/).
+Relax right now: [Play Roll The Ball](https://roll-the-ball.netlify.app/).
 
-## Технологии
+## Technologies
 
 **Canvas, React, TypeScript**
 
-## Установка и запуск
-Чтобы запустить проект локально:
+## Installation and launch
+To run the project locally:
 
-1. Склонируйте репозиторий:
+1. Clone the repository:
 
    ```
    git clone https://github.com/AlexGusarov/roll-the-ball.git
    ```
-2. Перейдите в директорию проекта:
+2. Go to the project directory:
 
    ```
    cd roll-the-ball
    ```
-3. Установите зависимости:
+3. Install dependencies:
 
    ```
    npm install
    ```
-4. Запустите проект:
+4. Run the project:
 
    ```
    npm start
    ```
-5. Откройте [http://localhost:3000](http://localhost:3000) для просмотра в браузере.
-
+5. Open [http://localhost:3000](http://localhost:3000) to view in a browser.
 
